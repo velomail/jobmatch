@@ -1,8 +1,12 @@
+import { RATE, enforceRateLimit } from '@/lib/rate-limit'
 import { templateJson } from '@/lib/server/template'
 
 const emails = new Set<string>()
 
 export async function POST(request: Request) {
+  const limited = await enforceRateLimit(request, 'waitlist', RATE.waitlist)
+  if (limited) return limited
+
   const body = (await request.json().catch(() => ({}))) as { email?: string }
   const email = body.email?.trim().toLowerCase()
   if (!email || !email.includes('@')) {

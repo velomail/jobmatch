@@ -4,12 +4,16 @@ import type { PlanId } from '@/lib/billing'
 import { weekKey } from '@/lib/dates'
 import { applyLocationToIntent } from '@/lib/location'
 import { applyListingBriefs, applyRerank, candidatePool, MATCH_QUALITY, type MatchRun } from '@/lib/match'
+import { RATE, enforceRateLimit } from '@/lib/rate-limit'
 import { parseResumeText, type ParsedResume } from '@/lib/resume'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
 export async function POST(request: Request) {
+  const limited = await enforceRateLimit(request, 'matches', RATE.matches)
+  if (limited) return limited
+
   const body = (await request.json().catch(() => ({}))) as {
     resume?: ParsedResume
     rawText?: string

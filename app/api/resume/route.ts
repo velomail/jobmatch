@@ -1,7 +1,11 @@
+import { RATE, enforceRateLimit } from '@/lib/rate-limit'
 import { parseResumeText } from '@/lib/resume'
 import { hasServerBackend, templateJson } from '@/lib/server/template'
 
 export async function POST(request: Request) {
+  const limited = await enforceRateLimit(request, 'resume', RATE.resume)
+  if (limited) return limited
+
   const form = await request.formData().catch(() => null)
   const text = String(form?.get('text') ?? '')
   const fileName = String(form?.get('fileName') ?? '') || undefined

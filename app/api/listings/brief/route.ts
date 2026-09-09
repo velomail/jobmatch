@@ -1,11 +1,15 @@
 import { briefListings } from '@/lib/ai/interpret-intent'
 import { applyListingBriefs, type MatchRun } from '@/lib/match'
+import { RATE, enforceRateLimit } from '@/lib/rate-limit'
 import type { ParsedResume } from '@/lib/resume'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
 export async function POST(request: Request) {
+  const limited = await enforceRateLimit(request, 'briefs', RATE.briefs)
+  if (limited) return limited
+
   const body = (await request.json().catch(() => ({}))) as {
     lookingFor?: string
     resume?: ParsedResume

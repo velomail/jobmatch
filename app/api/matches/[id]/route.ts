@@ -1,6 +1,10 @@
+import { RATE, enforceRateLimit } from '@/lib/rate-limit'
 import { templateJson } from '@/lib/server/template'
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const limited = await enforceRateLimit(request, 'match-id', RATE.read)
+  if (limited) return limited
+
   const { id } = await context.params
   return templateJson({
     id,

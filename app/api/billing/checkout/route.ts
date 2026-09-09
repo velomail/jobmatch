@@ -1,7 +1,11 @@
 import { PLANS } from '@/lib/billing'
+import { RATE, enforceRateLimit } from '@/lib/rate-limit'
 import { templateJson } from '@/lib/server/template'
 
-export async function POST() {
+export async function POST(request: Request) {
+  const limited = await enforceRateLimit(request, 'checkout', RATE.checkout)
+  if (limited) return limited
+
   return templateJson({
     url: null,
     price: PLANS.founding.price,
