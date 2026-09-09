@@ -1,0 +1,11 @@
+import { PLANS } from '@/lib/billing'
+import { templateJson } from '@/lib/server/template'
+
+export async function POST() {
+  return templateJson({
+    url: null,
+    price: PLANS.founding.price,
+    cadence: 'month',
+    hint: 'Create a Stripe Checkout session for Founding Pro at $9/month. After webhook, rematch from the stored resume and send the user to /app/matches.',
+  })
+}
